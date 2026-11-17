@@ -4,7 +4,6 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.tomcat.util.descriptor.web.ErrorPage;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
@@ -12,26 +11,19 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.asilag.config.AppProperties;
 import ro.asilag.servlet.IndexServlet;
 import ro.asilag.servlet.NotFoundServlet;
 import ro.asilag.servlet.RoutingFilter;
 
-import java.lang.invoke.MethodHandles;
-
 public class MainApp {
 
-    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class.getName());
 
     public static void main(String[] args) throws Exception {
 
-        // Prepare & read application.properties
-        AppProperties props = new AppProperties();
-        Configuration config = props.getAppPath();
-        int serverPort = Integer.parseInt(props.server(config, "port"));
-        String restRootApp = props.server(config, "rest");
-
+        String restRootApp = "/api";
         // Prepare Tomcat server & context
+        int serverPort = 8080;
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(serverPort);
         Connector connector = tomcat.getConnector();
