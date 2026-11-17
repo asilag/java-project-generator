@@ -1,11 +1,14 @@
 package ro.asilag;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.ErrorPage;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.jboss.weld.environment.servlet.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.asilag.servlet.IndexServlet;
@@ -18,6 +21,7 @@ public class MainApp {
 
     public static void main(String[] args) throws Exception {
 
+        String restRootApp = "/api";
         // Prepare Tomcat server & context
         int serverPort = 8080;
         Tomcat tomcat = new Tomcat();
@@ -40,6 +44,30 @@ public class MainApp {
         // Servlet implementation for /
         tomcat.addServlet("", "default", IndexServlet.class.getName());
         context.addServletMapping("/", "default");
+
+        // Resteasy section
+        context.addApplicationListener(Listener.class.getName());
+        context.addParameter(
+                "resteasy.servlet.mapping.prefix",
+                restRootApp
+        );
+        context.addApplicationListener(
+                "org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap"
+        );
+        Wrapper resteasyServlet = Tomcat.addServlet(
+                context,
+                "resteasy",
+                new HttpServletDispatcher()
+        );
+        resteasyServlet.addInitParameter(
+                "jakarta.ws.rs.Application",
+                "ro.asilag.restapp.RestApplication"
+        );
+        resteasyServlet.setLoadOnStartup(1);
+        context.addServletMapping(
+                restRootApp + "/*",
+                "resteasy"
+        );
 
         // Tomcat implementation for not-found
         Tomcat.addServlet(context, "notFound", new NotFoundServlet());

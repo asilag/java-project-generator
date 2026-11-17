@@ -12,8 +12,6 @@ public class IndexServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String requestURI = request.getRequestURI().toLowerCase();
-
         try (InputStream input = getClass()
                 .getResourceAsStream("/static/index.html")) {
 
