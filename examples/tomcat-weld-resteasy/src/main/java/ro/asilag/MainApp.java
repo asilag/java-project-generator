@@ -1,0 +1,64 @@
+package ro.asilag;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.ErrorPage;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.asilag.servlet.IndexServlet;
+import ro.asilag.servlet.NotFoundServlet;
+import ro.asilag.servlet.RoutingFilter;
+
+public class MainApp {
+
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class.getName());
+
+    public static void main(String[] args) throws Exception {
+
+        // Prepare Tomcat server & context
+        int serverPort = 8080;
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(serverPort);
+        Connector connector = tomcat.getConnector();
+        connector.setProperty("useVirtualThreads", "true");
+        Context context = tomcat.addContext("", System.getProperty("java.io.tmpdir"));
+
+        // Tomcat - Filter registration
+        FilterDef filterDef = new FilterDef();
+        filterDef.setFilterName("routing");
+        filterDef.setFilter(new RoutingFilter());
+        context.addFilterDef(filterDef);
+
+        FilterMap filterMap = new FilterMap();
+        filterMap.setFilterName("routing");
+        filterMap.addURLPattern("/*");
+        context.addFilterMapBefore(filterMap);
+
+        // Servlet implementation for /
+        tomcat.addServlet("", "default", IndexServlet.class.getName());
+        context.addServletMapping("/", "default");
+
+        // Tomcat implementation for not-found
+        Tomcat.addServlet(context, "notFound", new NotFoundServlet());
+        context.addServletMapping("/_errors/404", "notFound");
+
+        ErrorPage ep = new ErrorPage();
+        ep.setErrorCode(404);
+        ep.setLocation("/_errors/404");
+        context.addErrorPage(ep);
+
+        try {
+            tomcat.start();
+            log.info("Server started - http://localhost:{}", serverPort);
+            tomcat.getServer().await();
+        } finally {
+            tomcat.stop();
+            tomcat.destroy();
+        }
+
+    }
+
+}
