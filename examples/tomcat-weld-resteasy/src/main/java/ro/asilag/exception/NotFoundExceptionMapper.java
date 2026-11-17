@@ -11,12 +11,14 @@ import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 // https://docs.resteasy.dev/7.0/userguide/#_exceptionhandling
 
 @Provider
 public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
 
-    private static final Logger log = LoggerFactory.getLogger(NotFoundExceptionMapper.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Context
     private UriInfo uriInfo;
