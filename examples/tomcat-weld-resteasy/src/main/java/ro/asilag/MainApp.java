@@ -12,6 +12,7 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ro.asilag.config.AppConfig;
 import ro.asilag.config.AppProperties;
 import ro.asilag.servlet.IndexServlet;
 import ro.asilag.servlet.NotFoundServlet;
@@ -30,6 +31,9 @@ public class MainApp {
         Configuration config = props.getAppPath();
         int serverPort = Integer.parseInt(props.server(config, "port"));
         String restRootApp = props.server(config, "rest");
+
+        // Hold restRootApp to use later
+        AppConfig.init(restRootApp);
 
         // Prepare Tomcat server & context
         Tomcat tomcat = new Tomcat();

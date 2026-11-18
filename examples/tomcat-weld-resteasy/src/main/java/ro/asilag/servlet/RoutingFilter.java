@@ -3,6 +3,7 @@ package ro.asilag.servlet;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ro.asilag.config.AppConfig;
 
 import java.io.IOException;
 
@@ -22,9 +23,11 @@ public class RoutingFilter implements Filter {
                 .substring(req.getContextPath()
                         .length());
 
+        String restRootApp = AppConfig.getRestRootApp();
+
         if (path.equals("/")
                 || path.equals("/index.html")
-                || path.startsWith("/api/")) {
+                || path.startsWith(restRootApp + "/")) {
             chain.doFilter(request, response);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);

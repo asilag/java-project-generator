@@ -12,15 +12,15 @@ public class AppProperties {
 
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final String restEasyApp = System.getenv("REST_APP");
+    private final String restApp = System.getenv("REST_APP");
     private final Configurations configs = new Configurations();
-    private Configuration config;
 
     public Configuration getAppPath() {
 
         try {
-            if (restEasyApp != null) {
-                config = configs.properties(new File(restEasyApp + "/application.properties"));
+            Configuration config;
+            if (restApp != null) {
+                config = configs.properties(new File(restApp + "/application.properties"));
             } else {
                 config = configs.properties(new File("src/main/resources/application.properties"));
             }
@@ -62,7 +62,6 @@ public class AppProperties {
         };
 
     }
-
 
     public String server(Configuration config, String param) {
 
